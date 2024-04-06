@@ -1,19 +1,16 @@
-from flask import render_template
-from app import app
-import os
-APP_NAME = os.getenv('APP_NAME')
-author = os.getenv('AUTHOR')
+from flask import Blueprint
 
-@app.route('/')
-@app.route('/login')
-def login():
-    return render_template('auth/signin.html', title='Sign In', app_name=APP_NAME, author=author)
+main_blueprint = Blueprint('main', __name__)
 
-@app.route('/register')
-def register():
-    return render_template('auth/signup.html', title='Sign Up', app_name=APP_NAME, author=author)
+# import from controllers
+from app.controllers.AuthController import bp_authcontroller
+from app.controllers.RoleController import bp_rolecontroller
+from app.controllers.UserController import bp_usercontroller
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('portal/dashboard.html', title="Dashboard", app_name=APP_NAME, author=author)
+# Define your routes and map them to controllers
+# Registering the blueprint
+def create_routes(app):
+    app.register_blueprint(bp_authcontroller)
+    app.register_blueprint(bp_rolecontroller)
+    app.register_blueprint(bp_usercontroller)
 

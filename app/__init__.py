@@ -1,5 +1,7 @@
 from flask import Flask
+from app.routes import create_routes
+
 app = Flask(__name__)
 
-from app import routes
+create_routes(app)
 
