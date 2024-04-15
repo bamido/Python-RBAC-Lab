@@ -2,9 +2,10 @@ from app.models.mydb import db
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Email
+from flask_login import UserMixin
 
 
-class UserModel(db.Model):
+class UserModel(UserMixin, db.Model):
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, primary_key=True)
@@ -20,9 +21,27 @@ class UserModel(db.Model):
     updated_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     def __repr__(self):
-        return '<UserModel {}>'.format(self.username)
+        return '<UserModel {}>'.format(self.user_id)
+
+    def __init__(self, user_id=None, username=None, email_address=None, password=None, lastname=None, firstname=None, role_id=3):
+        self.user_id = user_id
+        self.username = username
+        self.email_address = email_address
+        self.password = password
+        self.lastname = lastname
+        self.firstname = firstname
+        self.role_id = role_id
    
+    
+    def get_id(self):
+        return str(self.user_id) # Return the user ID as a string
+
     @staticmethod
+    def get_user_by_username(username):
+        # Query the UserModel to retrieve the user by username
+        user = UserModel.query.filter_by(username=username).first()
+        return user
+
     def get_all_users():
         # Sample method to retrieve all users
         return ["Elon Musk", "Tim Cook", "Larry Page", 'Yemi Bamido', 'Toluwani Bamido']  # Example data
@@ -38,3 +57,9 @@ class SignupForm(FlaskForm):
     dateofbirth = StringField('Date of Birth')
     terms = BooleanField('Terms', validators=[DataRequired(message="You must agree before submitting.!")])
     submit = SubmitField('Sign Up')
+
+class LoginForm(FlaskForm):
+    username_or_email = StringField('username_or_email', validators=[DataRequired(message="Please, enter your username/email address!")])    
+    password = PasswordField('Password', validators=[DataRequired(message="Please, enter your password!")])    
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Sign In')    
