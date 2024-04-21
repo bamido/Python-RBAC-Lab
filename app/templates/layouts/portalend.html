@@ -37,6 +37,9 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+
+  <!-- sweetalert -->
+  <link rel="stylesheet" href="/static/assets/vendor/sweetalert/sweetalert.css"/>
 </head>
 
 <body>
@@ -81,6 +84,103 @@
 
   <!-- Template Main JS File -->
   <script src="/static/assets/js/main.js"></script>
+
+
+  <script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+  crossorigin="anonymous"></script>  
+<script type="text/javascript">
+  $("#largeModal").on("show.bs.modal", function(e) {
+      //get data-id attribute of the clicked element
+      var title = $(e.relatedTarget).data('title');
+      var dataid = $(e.relatedTarget).data('data-id');
+      //alert(title);
+      $("h5.modal-title").text(title);
+      var link = $(e.relatedTarget);
+      $(this).find(".modal-body").load(link.attr("href"));
+  });
+</script>
+
+
+<!-- sweetalert -->
+<script src="/static/assets/vendor/sweetalert/sweetalert.min.js"></script>
+<script type="text/javascript">
+  // generic delete based on specified data
+ $('[id^=deleter]').click(function() {
+
+     var $this = $(this);
+     var x = $this.attr("class");
+     var delId = $this.attr("value");
+     var delurl = $(this).data('swalurl');
+     var deltext = $(this).data('swaltext');
+      var delbtn = $(this).data('swalbtnconfirm');
+     var delsuccess = $(this).data('swalsuccess');
+     var delredirect = $(this).data('swalredirect');
+     var swalimage = $(this).data('swalimage');
+     var delsuccesstitle = $(this).data('swalsuccesstitle');
+     
+
+     //var refId = $('li#delref').val();
+     //alert(delId);
+     deleteGeneric(delId, delurl, deltext, delsuccess, delredirect,
+         swalimage, delbtn, delsuccesstitle);
+
+ });
+
+
+ function deleteGeneric(delId, delurl, deltext, delsuccess, delredirect,
+     swalimage, delbtn, delsuccesstitle) {
+     var baseurl = "<?php echo url('/'); ?>";
+     // if (refId instanceof Array) {
+     //    alert('value is Array!');
+     //  } else {
+     //    alert('Not an array');
+     //  }
+     var token = $('meta[name="csrf-token"]').attr('content');
+    
+     var delt = "DELETE";
+     //alert(token);
+     if(delbtn==''){
+          delbtn = "Yes, delete it!";
+       }
+
+
+     swal({
+         title: "Are you sure?",
+         text: deltext,
+         type: "warning",
+         showCancelButton: true,
+         closeOnConfirm: false,
+         confirmButtonText: delbtn, //"Yes, delete it!",
+         confirmButtonColor: "#ec6c62"
+     }, function() {
+          $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+         $.ajax({
+                 url: delurl, // + delId,
+                 //type: "DELETE",
+                 data: "delId=" + delId + "&swalimage=" + swalimage+ "&delredirect=" + delredirect + "&_method=" + delt + "&_token=" + token,
+             })
+             .done(function(data) {
+                 //swal("Deleted!", delsuccess, "success");
+                 swal(delsuccesstitle, delsuccess, "success");
+                 setTimeout(function() {
+                     window.location.href = delredirect
+                 }, 1000);
+                 //window.location.href  = baseurl + "rbac/index/";
+             })
+             .fail(function(data) {
+                console.log(data);
+                 swal("Oops", "We couldn't connect to the server!",
+                     "error");
+             });
+     });
+ }
+</script>
 
 </body>
 

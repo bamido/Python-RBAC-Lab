@@ -7,6 +7,7 @@ from app.controllers.AuthController import bp_authcontroller
 from app.controllers.RoleController import bp_rolecontroller
 from app.controllers.UserController import bp_usercontroller
 from app.controllers.HomeController import bp_home
+from app.controllers.ModuleController import bp_module
 
 
 # Define your routes and map them to controllers
@@ -16,4 +17,5 @@ def create_routes(app):
     app.register_blueprint(bp_rolecontroller)
     app.register_blueprint(bp_usercontroller)
     app.register_blueprint(bp_home)
+    app.register_blueprint(bp_module)
 
