@@ -3,8 +3,8 @@ from app.config import Config
 from app.routes import create_routes
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-#import app.models.modelsref
 from .models import modelsref
+from app.models.UserModel import UserModel
 from app.models.mydb import db
 from flask_login import LoginManager
 
@@ -24,9 +24,9 @@ login_manager = LoginManager(app)
 @login_manager.user_loader
 def load_user(user_id):
     #print(user_id)
-    #return ''' debug '''
     # Load and return a user instance based on user_id
-    return models.modelsref.UserModel(user_id)
+    user = UserModel.query.get(user_id)
+    return user #models.modelsref.UserModel(user_id)
 
 @login_manager.unauthorized_handler
 def unauthorized():

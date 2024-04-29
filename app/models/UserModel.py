@@ -19,6 +19,7 @@ class UserModel(UserMixin, db.Model):
     dateofbirth = db.Column(db.Date)
     created_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.current_timestamp())
     updated_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+    photograph = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
         return '<UserModel {}>'.format(self.user_id)
