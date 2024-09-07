@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app.models.RoleModel import RoleModel, RoleForm
+from app.models.ModuleModel import ModuleModel
+from app.models.PrivilegeModel import PrivilegeModel, PrivilegeForm
 from app.config import Config
 from app.models.mydb import db
 from flask_login import login_required
@@ -67,3 +69,47 @@ def deleterole(id):
         return jsonify({'message': 'Role deleted successfully'}), 200
     else:
         return jsonify({'message': 'Role not found'}), 404
+
+
+@bp_role.route('/assignprivileges/<int:id>', methods=['GET', 'POST'])
+@login_required
+def assignprivileges(id):
+    role = RoleModel.query.get(id)
+    modules = ModuleModel.get_all_modules()
+    role_privileges = [p.task_id for p in role.privileges]  # Extract task IDs from privileges
+    #print(role_privileges)    
+    form = PrivilegeForm(request.form)
+    assign_url = url_for('bp_role.assignprivileges', id=id)  # Generate URL with id param
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            roleid = form.role_id.data
+            taskids = request.form.getlist('task_id[]')
+            '''print(f"form.data: {form.data}")  # Print all form data
+            print(f"form.task_id.data: {form.task_id.data}")  # Print specific field data
+            print(f"roleid: {roleid}")
+            print(f"taskids: {taskids}")
+            print('Weldone!')'''
+            privileges = []
+            if taskids:  # Check if taskids is not None before iterating
+                
+                # Delete existing privileges for this role
+                db.session.query(PrivilegeModel).filter_by(role_id=roleid).delete()
+                db.session.commit()
+
+                for taskid in taskids:
+                    privilege = PrivilegeModel(task_id=taskid, role_id=roleid)
+                    privileges.append(privilege)
+                # Add all privileges to the database session
+                db.session.add_all(privileges)
+                db.session.commit()
+                flash('Privileges assigned successfully.', 'success')            
+                role_privileges = [p.task_id for p in role.privileges]  # Extract task IDs from privileges
+                return render_template('rbac/assignprivleges.html', moduletitle='Access Control', title='Assign Privileges', role=role, modules=modules, id=id, form=form, assign_url=assign_url, role_privileges=role_privileges)
+            else:
+                flash('No task selected.', 'error')
+        else:
+            errors = form.errors
+            return jsonify({'errors':errors})
+
+
+    return render_template('rbac/assignprivleges.html', moduletitle='Access Control', title='Assign Privileges', role=role, modules=modules, id=id, form=form, assign_url=assign_url, role_privileges=role_privileges)

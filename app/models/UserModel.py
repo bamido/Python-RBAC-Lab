@@ -4,6 +4,11 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Email
 from flask_login import UserMixin
 
+from app.models.RoleModel import RoleModel
+from app.models.ModuleModel import ModuleModel
+from app.models.TaskModel import TaskModel
+from app.models.PrivilegeModel import PrivilegeModel
+
 
 class UserModel(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -46,6 +51,32 @@ class UserModel(UserMixin, db.Model):
     def get_all_users():
         # Sample method to retrieve all users
         return ["Elon Musk", "Tim Cook", "Larry Page", 'Yemi Bamido', 'Toluwani Bamido']  # Example data
+
+    def print_model_columns(themodel):
+        column_names = [attr for attr in dir(themodel) if not callable(getattr(themodel, attr)) and not attr.startswith("__")]
+        print(f"Model Columns: {', '.join(column_names)}")
+
+    def get_user_tasks(role_id):    
+        if role_id:        
+            tasks = TaskModel.query.join(PrivilegeModel, PrivilegeModel.task_id == TaskModel.task_id) \
+                            .join(RoleModel, PrivilegeModel.role_id == RoleModel.role_id) \
+                            .join(ModuleModel, TaskModel.module_id == ModuleModel.module_id) \
+                            .filter(TaskModel.isnavbar == 1) \
+                            .filter(ModuleModel.module_id != 1) \
+                            .filter(PrivilegeModel.role_id == role_id) \
+                            .all()
+            # Group tasks by module
+            grouped_tasks = {}
+            for task in tasks:
+                module_title = task.module.module_title  # Access module title
+                module_icon = task.module.module_icon 
+                if module_title not in grouped_tasks:
+                    grouped_tasks[module_title] = {'tasks': [], 'module_icon': module_icon}
+                grouped_tasks[module_title]['tasks'].append(task)
+            return grouped_tasks
+        else:
+            return {}  # Handle case where user is not found
+
 
 
 class SignupForm(FlaskForm):

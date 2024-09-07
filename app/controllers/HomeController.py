@@ -3,7 +3,8 @@ from app.config import Config
 from app.models.mydb import db
 from flask_login import login_required, current_user, login_user
 
-bp_home = Blueprint('bp_home', __name__, url_prefix='/portal')
+#bp_home = Blueprint('bp_home', __name__, url_prefix='/portal')
+bp_home = Blueprint('bp_home', __name__)
 
 @bp_home.route('/dashboard')
 @login_required

@@ -1,4 +1,7 @@
 from app.models.mydb import db
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, SubmitField, FieldList, BooleanField
+from wtforms.validators import DataRequired, Email, ValidationError
 
 class PrivilegeModel(db.Model):
     __tablename__ = 'privileges'
@@ -12,3 +15,10 @@ class PrivilegeModel(db.Model):
 
     def __repr__(self):
         return '<PrivilegeModel {}>'.format(self.privilege_id)
+
+
+class PrivilegeForm(FlaskForm):    
+    task_id = FieldList(IntegerField('task id'))    
+    #task_id = IntegerField('role id', validators=[DataRequired(message="role id field is required!")])    
+    role_id = IntegerField('role id', validators=[DataRequired(message="role id field is required!")])    
+    submit = SubmitField('Submit')         
